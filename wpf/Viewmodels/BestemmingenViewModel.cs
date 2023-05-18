@@ -355,9 +355,6 @@ namespace wpf.ViewModels
                 }
             }
 
-            
-
-
         }
     }
 }
