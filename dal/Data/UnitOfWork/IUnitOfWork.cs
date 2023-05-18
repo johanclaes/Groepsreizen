@@ -19,6 +19,7 @@ namespace dal.Data.UnitOfWork
         IRepository<Inschrijving> InschrijvingRepo { get; }
         IRepository<Monitor> MonitorRepo { get; }
         IRepository<Opleiding> OpleidingRepo { get; }
+        IRepository<OpleidingType> OpleidingTypeRepo { get; }
 
         int Save();
     }

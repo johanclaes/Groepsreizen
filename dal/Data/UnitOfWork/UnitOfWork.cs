@@ -20,6 +20,7 @@ namespace dal.Data.UnitOfWork
         private IRepository<Inschrijving> _inschrijvingRepo;
         private IRepository<Monitor> _monitorRepo;
         private IRepository<Opleiding> _opleidingRepo;
+        private IRepository<OpleidingType> _opleidingTypeRepo;
 
         public UnitOfWork(GroepsreizenContext grc)
         {
@@ -121,6 +122,18 @@ namespace dal.Data.UnitOfWork
                     _opleidingRepo = new Repository<Opleiding>(Context);
                 }
                 return _opleidingRepo;
+            }
+        }
+
+        public IRepository<OpleidingType> OpleidingTypeRepo
+        {
+            get
+            {
+                if (_opleidingTypeRepo == null)
+                {
+                    _opleidingTypeRepo = new Repository<OpleidingType>(Context);
+                }
+                return _opleidingTypeRepo;
             }
         }
 

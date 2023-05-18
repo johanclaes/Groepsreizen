@@ -8,8 +8,8 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid Background="Lavender">
         <Grid.RowDefinitions>
-            <RowDefinition/>
-            <RowDefinition/>
+            <RowDefinition />
+            <RowDefinition MaxHeight="150"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
@@ -35,24 +35,24 @@
                 <ComboBox Name="cmbJaar" ItemsSource="{Binding Jaren}" SelectedItem="{Binding SelectedJaar}" Width="50" Margin="5"></ComboBox>
             </StackPanel>
             <Button Name="btnOpleidingOpvragen" Command="{Binding}" CommandParameter="OpleidingOpvragen" Content="Opleiding opvragen" Margin="5" />
-            <ListBox Name="lstOpleidingen" ItemsSource="{Binding Opleidingen}" SelectedItem="{Binding SelectedOpleiding}" Background="Beige" Height="80" Margin="5"/>
+            <ListBox Name="lstOpleidingen" ItemsSource="{Binding Opleidingen}" SelectedItem="{Binding SelectedOpleiding}" Background="Beige" Height="150" Margin="5"/>
         </StackPanel>
 
-        <GroupBox Grid.Row="1" Grid.Column="1" Header="Nieuw Type Opleiding Aanmaken" Background="LightBlue" Margin="10">
+        <GroupBox Grid.Row="1" Grid.Column="1" Header="Nieuw Type Opleiding" Background="LightBlue" Margin="10">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition />
                     <RowDefinition />
                 </Grid.RowDefinitions>
-                <TextBox Name="txtSoortOpleiding" Text="{Binding SoortOpleiding}" Grid.Row="0" Margin="2"></TextBox>
-                <Button Name="btnSoortOpleidingAanmaken" Command="{Binding}" CommandParameter="OpleidingAanmaken" Grid.Row="1" Content="Opleiding Aanmaken" Margin="2"/>
+                <TextBox Name="txtSoortOpleiding" Text="{Binding SoortOpleiding}" Grid.Row="0" FontSize="10" Margin="2"></TextBox>
+                <Button Name="btnSoortOpleidingAanmaken" Command="{Binding}" CommandParameter="OpleidingstypeAanmaken" Grid.Row="1" FontSize="13"  Content="Aanmaken" Margin="2"/>
             </Grid>
         </GroupBox>
 
         <StackPanel Grid.Row="0" Grid.Column="2" Margin="10">
             <TextBox Name="txtDeelnemer" Text="{Binding Deelnemer}"  Margin="10"></TextBox>
             <Button Name="btnZoekDeelnemer" Command="{Binding}" CommandParameter="ZoekDeelnemer" Content="Zoek deelnemer" Margin="5"/>
-            <ListBox Name="lstGezochteDeelnemers" ItemsSource="{Binding GezochteDeelnemers}" SelectedItem="{Binding SelectedDeelnemer}" Background="Beige" Height="70" Margin="5"/>
+            <ListBox Name="lstGezochteDeelnemers" ItemsSource="{Binding GezochteDeelnemers}" SelectedItem="{Binding SelectedDeelnemer}" Background="Beige" Height="100" Margin="5"/>
             <Button Name="btnVoegDeelnemerToe" Command="{Binding}" CommandParameter="VoegDeelnemerToe" Content="Voeg deelnemer toe" Margin="5"/>
         </StackPanel>
 
@@ -60,6 +60,7 @@
         <StackPanel Grid.Row="0" Grid.Column="3">
             <TextBlock >Lijst van Deelnemers</TextBlock>
             <ListBox Name="lstDeelnemers" ItemsSource="{Binding Deelnemers}" Background="beige" Height="200"/>
+            <Button Name="btnVerwijderDeelnemer" Command="{Binding}" CommandParameter="VerwijderDeelnemer" Content="Verwijder deelnemer" Margin="5"/>
         </StackPanel>
 
 

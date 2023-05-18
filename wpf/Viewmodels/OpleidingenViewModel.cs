@@ -1,22 +1,29 @@
-﻿using models;
+﻿using dal.Data.UnitOfWork;
+using dal;
+using models;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
+using models.Partials;
 
 namespace wpf.ViewModels
 {
     public class OpleidingenViewModel : BaseViewModel
     {
-        private ObservableCollection<Opleiding> _soortOpleidingen;
+        private IUnitOfWork _unitOfWork = new UnitOfWork(new GroepsreizenContext());
+
+        private ObservableCollection<models.OpleidingType> _soortOpleidingen;
         private Opleiding _selectedSoortOpleiding;
         private DateTime _startdatum;
-        private ObservableCollection<DateTime> _maanden;
-        private DateTime _selectedMaand;
-        private ObservableCollection<DateTime> _jaren;
-        private DateTime _selectedJaar;
+        private DateTime _einddatum;
+        private ObservableCollection<string> _maanden;
+        private string _selectedMaand;
+        private ObservableCollection<int> _jaren;
+        private int _selectedJaar;
         private ObservableCollection<Opleiding> _opleidingen;
         private Opleiding _selectedOpleiding;
         private string _soortOpleiding;
@@ -26,7 +33,17 @@ namespace wpf.ViewModels
         private ObservableCollection<Gebruiker> _deelnemers;
         private string _errorOpleiding;
 
-        public ObservableCollection<Opleiding> SoortOpleidingen
+
+        private string _opleidingsType;
+
+        public string OpleidingsType
+        {
+            get { return _opleidingsType; }
+            set { _opleidingsType = value; }
+        }
+
+
+        public ObservableCollection<models.OpleidingType> SoortOpleidingen
         {
             get { return _soortOpleidingen; }
             set
@@ -56,7 +73,14 @@ namespace wpf.ViewModels
             }
         }
 
-        public ObservableCollection<DateTime> Maanden
+        public DateTime Einddatum
+        {
+            get { return _einddatum; }
+            set { _einddatum = value; }
+        }
+
+
+        public ObservableCollection<string> Maanden
         {
             get { return _maanden; }
             set
@@ -66,7 +90,7 @@ namespace wpf.ViewModels
             }
         }
 
-        public DateTime SelectedMaand
+        public string SelectedMaand
         {
             get { return _selectedMaand; }
             set
@@ -76,7 +100,7 @@ namespace wpf.ViewModels
             }
         }
 
-        public ObservableCollection<DateTime> Jaren
+        public ObservableCollection<int> Jaren
         {
             get { return _jaren; }
             set
@@ -86,7 +110,7 @@ namespace wpf.ViewModels
             }
         }
 
-        public DateTime SelectedJaar
+        public int SelectedJaar
         {
             get { return _selectedJaar; }
             set
@@ -176,6 +200,8 @@ namespace wpf.ViewModels
             }
         }
 
+        
+
         public override string this[string columnName]
         {
             get
@@ -193,6 +219,7 @@ namespace wpf.ViewModels
                 case "OpleidingstypeAanmaken": return true;
                 case "ZoekDeelnemer": return true;
                 case "VoegDeelnemerToe": return true;
+                case "VerwijderDeelnemer": return true;
             }
             return true;
         }
@@ -206,13 +233,72 @@ namespace wpf.ViewModels
                 case "OpleidingstypeAanmaken": OpleidingstypeAanmaken(); break;
                 case "ZoekDeelnemer": ZoekDeelnemer(); break;
                 case "VoegDeelnemerToe": VoegDeelnemerToe(); break;
+                case "VerwijderDeelnemer": VerwijderDeelnemer(); break;
             }
         }
 
-        public void OpleidingAanmaken() { }
-        public void OpleidingOpvragen() { }
-        public void OpleidingstypeAanmaken() { }
-        public void ZoekDeelnemer() { }
-        public void VoegDeelnemerToe() { }
+        public OpleidingenViewModel()
+        {
+            SoortOpleidingen = new ObservableCollection<models.OpleidingType>(_unitOfWork.OpleidingTypeRepo.Ophalen());
+
+            Maanden = new ObservableCollection<string> { "Jan", "Feb", "Maart", "April", "Mei", "Juni", "Juli", "Aug", "Sept", "Okt", "Nov", "Dec" };
+            Jaren = new ObservableCollection<int> { 2022, 2023, 2024, 2025 };
+            Startdatum = DateTime.Today;
+            Einddatum = DateTime.Today;
+        }
+
+        public void OpleidingAanmaken() 
+        {
+            MessageBox.Show("opleiding aanmaken");
+        }
+        public void OpleidingOpvragen() 
+        {
+            MessageBox.Show("opleiding opvragen");
+        }
+        public void OpleidingstypeAanmaken() 
+        {
+            MessageBox.Show("opleidingType aanmaken");
+
+            string test = SoortOpleiding;
+
+            // SoortOpleiding = "kegelen";
+
+            models.OpleidingType Opleidingtype1 = new models.OpleidingType();
+            Opleidingtype1.Naam = SoortOpleiding;
+
+            // testing of nieuw bestemmingstype minstens 3 karakters heeft
+            if (Opleidingtype1.Naam.Length < 3)
+            {
+                ErrorOpleiding = "Opleidingstype minstens 3 karakters";
+            }
+            else
+            {
+                ErrorOpleiding = "";
+                _unitOfWork.OpleidingTypeRepo.Toevoegen(Opleidingtype1);
+                int oke = _unitOfWork.Save();
+                if (oke > 0)
+                {
+                    MessageBox.Show("Het bestemmingstype is toegevoegd.");
+                    SoortOpleiding = "";
+                }
+                else
+                {
+                    MessageBox.Show("Het bestemmingstype is niet toegevoegd.");
+                }
+            }
+        }
+        public void ZoekDeelnemer() 
+        {
+            MessageBox.Show("zoek deelnemer");
+        }
+        public void VoegDeelnemerToe() 
+        {
+            MessageBox.Show("voeg deelnemer toe");
+        }
+
+        public void VerwijderDeelnemer() 
+        {
+            MessageBox.Show("verwijder deelnemer");
+        }
     }
 }

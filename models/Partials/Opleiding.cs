@@ -9,6 +9,12 @@ namespace models
 {
     public partial class Opleiding : BasisKlasse
     {
+
+        public override string ToString()
+        {
+            return $"{ OpleidingType.Naam  + " " + Startdatum}";
+        }
+
         public override string this[string columnName]
         {
             get
