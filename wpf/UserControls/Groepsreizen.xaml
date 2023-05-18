@@ -1,0 +1,94 @@
+﻿<UserControl x:Name="groepsreizen1" x:Class="wpf.UserControls.Groepsreizen"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:wpf.UserControls"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid Background="LightPink">
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+
+        <StackPanel VerticalAlignment="Bottom" Grid.Row="0" Grid.Column="0" Margin="2">
+            <TextBlock HorizontalAlignment="Center" Margin="2">zoekterm naam groepsreis</TextBlock>
+            <TextBox Name="txtNaamReis" Text="{Binding NaamReis}" Margin="2"></TextBox>
+            <Button Name="btnZoekReis" Command="{Binding}" CommandParameter="ZoekReis" Width="200" Margin="5">Maak lijst obv zoekterm</Button>
+        </StackPanel>
+
+        <ListBox Name="lstGezochteReizen" ItemsSource="{Binding GezochteReizen}" SelectedItem="{Binding SelectedReis}" Background="Beige" Grid.Row="1" Grid.Column="0" Margin="5"></ListBox>
+
+        <StackPanel Grid.Row="2" Grid.Column="0">
+            <Button Name="btnUpdateReis" Command="{Binding}" CommandParameter="UpdateReis" Width="200" Margin="5">Update Geselecteerde reis</Button>
+            <Button Name="btnMaakNieuweReis" Command="{Binding}" CommandParameter="MaakNieuweReis" Width="200" Margin="5">Maak Nieuwe reis</Button>
+            <Button Name="btnMaakVeldenLeegGroepsreis" Command="{Binding}" CommandParameter="MaakVeldenLeeg" Width="200" Margin="5">Maak alle velden leeg.</Button>
+        </StackPanel>
+
+        <Grid Grid.Row="0" Grid.Column="1" Grid.RowSpan="2">
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Row="0" Grid.Column="0">Naam:</TextBlock>
+            <TextBox Name="txtNaamGroepsreis" Text="{Binding NaamReis}" Grid.Row="0" Grid.Column="1"></TextBox>
+            <TextBlock Grid.Row="1" Grid.Column="0">DeelnamePrijs:</TextBlock>
+            <TextBox Name="txtDeelnameprijs" Text="{Binding Deelnameprijs}" Grid.Row="1" Grid.Column="1"></TextBox>
+            <TextBlock Grid.Row="2" Grid.Column="0">Thema:</TextBlock>
+            <TextBox Name="txtThema" Text="{Binding Thema}" Grid.Row="2" Grid.Column="1"></TextBox>
+            <TextBlock Grid.Row="3" Grid.Column="0">Bestemming:</TextBlock>
+            <ComboBox Name="cmbBestemmingGroepsreis" Text="{Binding BestemmingGroepsreis}" Grid.Row="3" Grid.Column="1"></ComboBox>
+            <TextBlock Grid.Row="4" Grid.Column="0">Startdatum:</TextBlock>
+            <TextBox Name="txtStartdatum" Text="{Binding Startdatum}" Grid.Row="4" Grid.Column="1"></TextBox>
+            <TextBlock Grid.Row="5" Grid.Column="0">Einddatum:</TextBlock>
+            <TextBox Name="txtEinddatum" Text="{Binding Einddatum}" Grid.Row="5" Grid.Column="1"></TextBox>
+            <TextBlock Grid.Row="6" Grid.Column="0">MinimumLeeftijd:</TextBlock>
+            <TextBox Name="txtMinimumLeeftijd" Text="{Binding Minimumleeftijd}" Grid.Row="6" Grid.Column="1"></TextBox>
+            <TextBlock Grid.Row="7" Grid.Column="0">MaximumLeeftijd:</TextBlock>
+            <TextBox Name="txtMaximumLeeftijd" Text="{Binding Maximumleeftijd}" Grid.Row="7" Grid.Column="1"></TextBox>
+            <CheckBox Name="cbVolzet" IsChecked="{Binding IsVolzet}" Grid.Row="8" Grid.Column="0">Volzet</CheckBox>
+            <CheckBox Name="cbInschrijvingGestopt" IsChecked="{Binding IsInschrijvingGestopt}" Grid.Row="8" Grid.Column="1">Inschrijving Gestopt</CheckBox>
+        </Grid>
+
+        <Label Background="LightCyan" Content="{Binding ErrorGroepsreizen}" Grid.Row="2" Grid.Column="1" Margin="2" Visibility="Visible"></Label>
+
+        <Grid Grid.Row="0" Grid.Column="2" Margin="4" Grid.RowSpan="3">
+            <GroupBox Header="Monitoren Selecteren">
+                <StackPanel>
+                    <TextBox Name="txtNaamMonitor" Text="{Binding NaamMonitor}" Width="120" Margin="3"></TextBox>
+                    <StackPanel Orientation="Horizontal">
+                        <Button Name="btnZoekMonitor" Command="{Binding}" CommandParameter="ZoekMonitor" Margin="1">Zoek op naam</Button>
+                        <Button Name="btnZoekViaOpleiding" Command="{Binding}" CommandParameter="ZoekMonitorViaOpleiding" Margin="1" >Via opleiding</Button>
+                    </StackPanel>
+                    <ListBox Name="lstMonitoren" Background="Beige" Height="80" Margin="5"/>
+                    <Button Name="btnVoegMonitortoe" Command="{Binding}" CommandParameter="VoegMonitorToe">Voeg toe aan monitorlijst</Button>
+                    <ListBox Name="lstMonitorenGroepsreis" Background="Beige" Height="80" Margin="5"/>
+                    <Button Name="btnVerwijderMonitorGroepsreis" Command="{Binding}" CommandParameter="VerwijderMonitor">Verwijder van monitorlijst</Button>
+                    <GroupBox  Margin="5" Header="HoofdMonitor Selecteren">
+                        <ComboBox Name="cmbHoofdmonitor" ItemsSource="{Binding Hoofdmonitoren}" SelectedItem="{Binding SelectedHoofdmonitor}" Margin="5"></ComboBox>
+                    </GroupBox>
+                </StackPanel>
+
+            </GroupBox>
+        </Grid>
+
+    </Grid>
+</UserControl>

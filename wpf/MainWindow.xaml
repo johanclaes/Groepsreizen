@@ -1,0 +1,41 @@
+﻿<Window  x:Class="wpf.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:wpf.UserControls"
+        mc:Ignorable="d"
+        Style="{StaticResource MaterialDesignWindow}"
+        Title="Jongeren GroepsReizen" Height="550" Width="900">
+    <Grid Margin="2">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="150"/>
+            <ColumnDefinition Width="150"/>
+            <ColumnDefinition Width="150"/>
+            <ColumnDefinition Width="150"/>
+            <ColumnDefinition Width="150"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Button x:Name="btnPersonen" Grid.Row="0" Grid.Column="0" Background="DarkSalmon" Content="Personen" Margin="2" Click="btnPersonen_Click" ></Button>
+        <Button x:Name="btnInschrijvingen" Grid.Row="0" Grid.Column="1" Background="blue" Content="Inschrijvingen" Margin="2" Click="btnInschrijvingen_Click"   ></Button>
+        <Button x:Name="btnGroepsreizen" Grid.Row="0" Grid.Column="2"  Background="HotPink" Content="Groepsreizen" Margin="2" Click="btnGroepsreizen_Click"   ></Button>
+        <Button x:Name="btnOpleidingen" Grid.Row="0" Grid.Column="3" Background="Purple" Content="Opleidingen" Margin="2" Click="btnOpleidingen_Click" ></Button>
+        <Button x:Name="btnBestemmingen" Grid.Row="0" Grid.Column="4" Background="DarkCyan" Content="Bestemmingen" Margin="2" Click="btnBestemmingen_Click" ></Button>
+        <Button x:Name="btnUitloggen" Grid.Row="0" Grid.Column="5"  Background="red" Content="Uitloggen" Margin="2" Click="btnUitloggen_Click"></Button>
+
+        <Grid x:Name="gridContainer" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="7" Margin="5">
+            <local:Personen x:Name="personen2" Visibility="Collapsed"></local:Personen>
+            <local:Inschrijvingen x:Name="inschrijvingen2" Visibility="Collapsed"></local:Inschrijvingen>
+            <local:Groepsreizen x:Name="groepsreizen2" Visibility="Collapsed"></local:Groepsreizen>
+            <local:Opleidingen x:Name="opleidingen2" Visibility="Collapsed"></local:Opleidingen>
+            <local:Bestemmingen x:Name="bestemmingen2" Visibility="Collapsed"></local:Bestemmingen>
+        </Grid>
+
+
+    </Grid>
+</Window>
