@@ -74,6 +74,8 @@ namespace wpf.ViewModels
             }
         }
 
+        // constructor
+
         public PersonenViewModel() 
         {
             GebruikerRecord = new Gebruiker();

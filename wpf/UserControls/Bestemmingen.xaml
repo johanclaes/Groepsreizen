@@ -36,16 +36,16 @@
             <TextBlock Grid.Row="1" Grid.Column="0">Land:</TextBlock>
             <ComboBox Name="cmbLandNieuwBestemming" ItemsSource="{Binding Landen}" SelectedItem="{Binding SelectedLand1}" Grid.Row="1" Grid.Column="1"></ComboBox>
             <TextBlock Grid.Row="2" Grid.Column="0">Naam:</TextBlock>
-            <TextBox Name="txtNaamNieuwBestemming" Text="{Binding Naam}" Grid.Row="2" Grid.Column="1"></TextBox>
+            <TextBox Name="txtNaamNieuwBestemming" Text="{Binding BestemmingRecord.Naam}" Grid.Row="2" Grid.Column="1"></TextBox>
             <TextBlock Grid.Row="3" Grid.Column="0">Gemeente:</TextBlock>
-            <TextBox Name="txtGemeenteNieuwBestemming" Text="{Binding Gemeente}" Grid.Row="3" Grid.Column="1"></TextBox>
+            <TextBox Name="txtGemeenteNieuwBestemming" Text="{Binding BestemmingRecord.Gemeente}" Grid.Row="3" Grid.Column="1"></TextBox>
             <TextBlock Grid.Row="4" Grid.Column="0">Straat:</TextBlock>
-            <TextBox Name="txtStraatNieuwBestemming" Text="{Binding Straat}" Grid.Row="4" Grid.Column="1"></TextBox>
+            <TextBox Name="txtStraatNieuwBestemming" Text="{Binding BestemmingRecord.Straat}" Grid.Row="4" Grid.Column="1"></TextBox>
             <TextBlock Grid.Row="5" Grid.Column="0">Capaciteit:</TextBlock>
-            <TextBox Name="txtCapaciteitNieuwBestemming" Text="{Binding Capaciteit}" Grid.Row="5" Grid.Column="1"></TextBox>
+            <TextBox Name="txtCapaciteitNieuwBestemming" Text="{Binding BestemmingRecord.Capaciteit}" Grid.Row="5" Grid.Column="1"></TextBox>
             <StackPanel Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2">
-                <Button Name="btnMaakNieuweBestemming" Command="{Binding}" CommandParameter="MaakBestemming" Margin="20" IsEnabled="{Binding IsBestemmingAanmaken}">Maak Nieuwe Bestemming</Button>
-                <Button Name="btnUpdateBestemming" Command="{Binding}" CommandParameter="UpdateBestemming" Margin="20" IsEnabled="{Binding IsBestemmingGeselecteerd}" >Update Reisbestemming</Button>
+                <Button Name="btnMaakNieuweBestemming" Command="{Binding}" CommandParameter="MaakBestemming" Margin="20">Maak Nieuwe Bestemming</Button>
+                <Button Name="btnUpdateBestemming" Command="{Binding}" CommandParameter="UpdateBestemming" Margin="20">Update Reisbestemming</Button>
                 <Button Name="btnVeldenLeegmakenBestemmingen" Command="{Binding}" CommandParameter="VeldenLeegmaken" Margin="20">Alle Velden leegmaken</Button>
             </StackPanel>
         </Grid>

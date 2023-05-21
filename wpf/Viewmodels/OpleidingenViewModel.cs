@@ -9,6 +9,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using models.Partials;
+using System.Reflection.Metadata;
+using wpf.UserControls;
 
 namespace wpf.ViewModels
 {
@@ -17,7 +19,7 @@ namespace wpf.ViewModels
         private IUnitOfWork _unitOfWork = new UnitOfWork(new GroepsreizenContext());
 
         private ObservableCollection<models.OpleidingType> _soortOpleidingen;
-        private Opleiding _selectedSoortOpleiding;
+        private string _selectedSoortOpleiding;
         private DateTime _startdatum;
         private DateTime _einddatum;
         private ObservableCollection<string> _maanden;
@@ -32,7 +34,8 @@ namespace wpf.ViewModels
         private Gebruiker _selectedDeelnemer;
         private ObservableCollection<Gebruiker> _deelnemers;
         private string _errorOpleiding;
-
+        private Gebruiker _selectedDeelnemerDelete;
+        private ObservableCollection<GebruikerOpleiding> _gebruikerOpleidingen;
 
         private string _opleidingsType;
 
@@ -53,7 +56,17 @@ namespace wpf.ViewModels
             }
         }
 
-        public Opleiding SelectedSoortOpleiding
+        public ObservableCollection<models.GebruikerOpleiding> GebruikerOpleidingen
+        {
+            get { return _gebruikerOpleidingen; }
+            set
+            {
+                _gebruikerOpleidingen = value;
+                NotifyPropertyChanged();
+            }
+        }
+
+        public string SelectedSoortOpleiding
         {
             get { return _selectedSoortOpleiding; }
             set
@@ -76,7 +89,11 @@ namespace wpf.ViewModels
         public DateTime Einddatum
         {
             get { return _einddatum; }
-            set { _einddatum = value; }
+            set 
+            { 
+                _einddatum = value;
+                NotifyPropertyChanged();
+            }
         }
 
 
@@ -130,12 +147,32 @@ namespace wpf.ViewModels
             }
         }
 
+
         public Opleiding SelectedOpleiding
         {
             get { return _selectedOpleiding; }
             set
             {
+                // als een bepaalde opleiding met datum wordt geselecteerd, dan moeten alle deelnemers getoond worden in de rechtse listbox
                 _selectedOpleiding = value;
+                if (SelectedOpleiding != null)
+                {
+                    int PKselectedOpleiding = SelectedOpleiding.Id;
+
+                    GebruikerOpleidingen = new ObservableCollection<GebruikerOpleiding>(_unitOfWork.GebruikerOpleidingRepo.Ophalen(x => x.OpleidingId == PKselectedOpleiding));
+                    
+                    Deelnemers = new ObservableCollection<Gebruiker>();
+
+                    foreach (var item in GebruikerOpleidingen)
+                    {
+                        // MessageBox.Show(item.GebruikerId.ToString());
+                        Gebruiker abc = new Gebruiker();
+                        abc = (_unitOfWork.GebruikerRepo.Ophalen(x => x.Id == item.GebruikerId)).FirstOrDefault();
+                        Deelnemers.Add(abc);
+                    }
+                    
+                }
+
                 NotifyPropertyChanged();
             }
         }
@@ -200,7 +237,15 @@ namespace wpf.ViewModels
             }
         }
 
-        
+        public Gebruiker SelectedDeelnemerDelete
+        {
+            get { return _selectedDeelnemerDelete; }
+            set 
+            {
+                _selectedDeelnemerDelete = value;
+                NotifyPropertyChanged();
+            }
+        }
 
         public override string this[string columnName]
         {
@@ -214,12 +259,12 @@ namespace wpf.ViewModels
         {
             switch (parameter.ToString())
             {
-                case "OpleidingAanmaken": return true;
-                case "OpleidingOpvragen": return true;
-                case "OpleidingstypeAanmaken": return true;
+                case "OpleidingAanmaken": return ( (Startdatum != DateTime.Now.Date) && (Einddatum != DateTime.Now.Date) && (SelectedSoortOpleiding != null));
+                case "OpleidingOpvragen": return ( (SelectedMaand != null) && ( SelectedJaar != 0));
+                case "OpleidingstypeAanmaken": return SoortOpleiding != null;
                 case "ZoekDeelnemer": return true;
-                case "VoegDeelnemerToe": return true;
-                case "VerwijderDeelnemer": return true;
+                case "VoegDeelnemerToe": return ((SelectedOpleiding != null) && (SelectedDeelnemer != null));
+                case "VerwijderDeelnemer": return SelectedDeelnemerDelete != null;
             }
             return true;
         }
@@ -237,6 +282,7 @@ namespace wpf.ViewModels
             }
         }
 
+        // constructor =========================================
         public OpleidingenViewModel()
         {
             SoortOpleidingen = new ObservableCollection<models.OpleidingType>(_unitOfWork.OpleidingTypeRepo.Ophalen());
@@ -249,56 +295,189 @@ namespace wpf.ViewModels
 
         public void OpleidingAanmaken() 
         {
-            MessageBox.Show("opleiding aanmaken");
-        }
-        public void OpleidingOpvragen() 
-        {
-            MessageBox.Show("opleiding opvragen");
-        }
-        public void OpleidingstypeAanmaken() 
-        {
-            MessageBox.Show("opleidingType aanmaken");
+            // er wordt een lijst gemaakt (meestal grootte 1) van opleidingtype obv in combobox geselecteerd type
+            var opleidingsstypes = new ObservableCollection<OpleidingType>(_unitOfWork.OpleidingTypeRepo.Ophalen(x => x.Naam.Contains(SelectedSoortOpleiding)));
 
-            string test = SoortOpleiding;
-
-            // SoortOpleiding = "kegelen";
-
-            models.OpleidingType Opleidingtype1 = new models.OpleidingType();
-            Opleidingtype1.Naam = SoortOpleiding;
-
-            // testing of nieuw bestemmingstype minstens 3 karakters heeft
-            if (Opleidingtype1.Naam.Length < 3)
+            if (opleidingsstypes.Count() == 0)
             {
-                ErrorOpleiding = "Opleidingstype minstens 3 karakters";
+                ErrorOpleiding = "Kies opleidingstype.";
             }
             else
             {
-                ErrorOpleiding = "";
-                _unitOfWork.OpleidingTypeRepo.Toevoegen(Opleidingtype1);
-                int oke = _unitOfWork.Save();
-                if (oke > 0)
+                if (Startdatum < Einddatum)
                 {
-                    MessageBox.Show("Het bestemmingstype is toegevoegd.");
-                    SoortOpleiding = "";
+                    // er wordt opleiding aangemaakt verwijzend naar opleidingstype
+                    models.Opleiding Opleiding1 = new models.Opleiding() { OpleidingTypeId = opleidingsstypes.FirstOrDefault().Id, Startdatum = Startdatum, Einddatum = Einddatum };
+
+                    ErrorOpleiding = "";
+                    _unitOfWork.OpleidingRepo.Toevoegen(Opleiding1);
+                    int oke = _unitOfWork.Save();
+                    if (oke > 0)
+                    {
+                        MessageBox.Show("Het opleidingsmoment is toegevoegd.");
+                        SelectedSoortOpleiding = null;
+                        Startdatum = DateTime.Now;
+                        Einddatum = DateTime.Now;
+                    }
+                    else
+                    {
+                        MessageBox.Show("Het opleidingsmoment is niet toegevoegd.");
+                    }
                 }
                 else
                 {
-                    MessageBox.Show("Het bestemmingstype is niet toegevoegd.");
+                    ErrorOpleiding = "Begindatum liefst voor einddatum.";
+                }
+
+                
+            }
+
+        }
+        public void OpleidingOpvragen() 
+        {
+            int SelectedMaandnr = 0 ;
+            if (Deelnemers != null)
+            {
+                Deelnemers.Clear();
+            }
+           
+            switch (SelectedMaand)
+            {
+                case "Jan": SelectedMaandnr = 1; break;
+                case "Feb": SelectedMaandnr = 2; break;
+                case "Maart": SelectedMaandnr = 3; break;
+                case "April": SelectedMaandnr = 4; break;
+                case "Mei": SelectedMaandnr = 5; break;
+                case "Juni": SelectedMaandnr = 6; break;
+                case "Juli": SelectedMaandnr = 7; break;
+                case "Aug": SelectedMaandnr = 8; break;
+                case "Sept": SelectedMaandnr = 9; break;
+                case "Okt": SelectedMaandnr = 10; break;
+                case "Nov": SelectedMaandnr = 11; break;
+                case "Dec": SelectedMaandnr = 12; break;
+            }
+            
+            // op basis van maand en jaar van startdatum gaan we zoeken in opleidingen
+            Opleidingen = new ObservableCollection<Opleiding>(_unitOfWork.OpleidingRepo.Ophalen(x => x.Startdatum.Year == SelectedJaar && x.Startdatum.Month == SelectedMaandnr));
+        }
+        public void OpleidingstypeAanmaken() 
+        {
+            models.OpleidingType Opleidingtype1 = new models.OpleidingType();
+            Opleidingtype1.Naam = SoortOpleiding;
+
+            if (Opleidingtype1.Naam != null )
+            {
+                // testing of nieuw opleidingstype minstens 3 karakters heeft
+                if (Opleidingtype1.Naam.Length < 3)
+                {
+                    ErrorOpleiding = "Opleidingstype minstens 3 karakters";
+                }
+                else
+                {
+                    ErrorOpleiding = "";
+                    _unitOfWork.OpleidingTypeRepo.Toevoegen(Opleidingtype1);
+                    int oke = _unitOfWork.Save();
+                    if (oke > 0)
+                    {
+                    MessageBox.Show("Het opleidingstype is toegevoegd.");
+                    SoortOpleiding = "";
+                    }
+                    else
+                    {
+                    MessageBox.Show("Het opleidingstype is niet toegevoegd.");
+                    }
                 }
             }
+            else
+            {
+                ErrorOpleiding = "Opleidingstype invullen!";
+            }
+
+            
+            
         }
         public void ZoekDeelnemer() 
         {
-            MessageBox.Show("zoek deelnemer");
+            
+            if (string.IsNullOrWhiteSpace(Deelnemer))
+                GezochteDeelnemers = new ObservableCollection<Gebruiker>(_unitOfWork.GebruikerRepo.Ophalen());
+            else
+                GezochteDeelnemers = new ObservableCollection<Gebruiker>(_unitOfWork.GebruikerRepo.Ophalen(x => x.Naam.Contains(Deelnemer) || x.Voornaam.Contains(Deelnemer)));
         }
         public void VoegDeelnemerToe() 
         {
-            MessageBox.Show("voeg deelnemer toe");
+            
+            Opleiding GeclickteOpleiding5 = SelectedOpleiding;
+            Gebruiker GeclickteDeelnemer5 = SelectedDeelnemer;
+
+            // als beide voorgaande verschillend van null, dan pas komt de knop Voegdeelnemer toe beschikbaar.
+
+            // de GebruikerOpleiding heeft 2 FK: 1 verwijzend naar PK-gebruiken en 1 verwijzend naar PK-opleiding
+
+            if (SelectedDeelnemer != null && SelectedOpleiding != null  )
+            {
+                GebruikerOpleiding GebruikerOpleiding1 = new GebruikerOpleiding();
+                GebruikerOpleiding1.GebruikerId = SelectedDeelnemer.Id;
+                GebruikerOpleiding1.OpleidingId = SelectedOpleiding.Id;
+
+                _unitOfWork.GebruikerOpleidingRepo.Toevoegen(GebruikerOpleiding1);
+                int oke = _unitOfWork.Save();
+                if (oke > 0)
+                {
+                    MessageBox.Show("Opleiding toegevoegd voor user.");
+                    Deelnemer = "";
+                    SelectedDeelnemer = null;
+                    GezochteDeelnemers = null;
+                    SelectedOpleiding = null;
+                }
+                else
+                {
+                    MessageBox.Show("er ging iets mis.");
+                }
+
+            }
+            else
+            {
+                ErrorOpleiding = "Selecteer opleiding en deelnemer.";
+            }
+
         }
 
         public void VerwijderDeelnemer() 
         {
-            MessageBox.Show("verwijder deelnemer");
+            
+            // hier gaan we geen deelnemer deleten, maar een gebruikeropleiding
+            // namelijk het kruispunt tussen SelectedDeelnemerDelete en SelectedOpleiding
+            
+
+            if (SelectedDeelnemerDelete != null && SelectedOpleiding != null)
+            {
+                int PKselectedDeelnemer = SelectedDeelnemerDelete.Id;               // we bepalen de primary key vna de user
+                int PKselectedOpleiding = SelectedOpleiding.Id;
+
+                GebruikerOpleiding Gebruikeropleiding5 = new GebruikerOpleiding();
+
+                // we zoeken de PK-x van de gebruikersopleiding .. waar de FK1 =  PKuser en FK2 = PKopleiding
+                foreach (var item in GebruikerOpleidingen)
+                {
+                    if (item.OpleidingId == PKselectedOpleiding && item.GebruikerId == PKselectedDeelnemer)
+                    {
+                        Gebruikeropleiding5.Id = item.Id;
+                    }
+                }
+
+                // vervolgens delete van gebruikersopleiding met PK-x
+                
+                _unitOfWork.GebruikerOpleidingRepo.Verwijderen(Gebruikeropleiding5.Id);
+                int oke = _unitOfWork.Save();
+                if (oke > 0 )
+                {
+                    MessageBox.Show("gebruiker verwijderd van opleiding.");
+                    SelectedOpleiding = null;
+                }
+
+            }
+
         }
     }
 }

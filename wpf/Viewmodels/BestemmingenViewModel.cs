@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.IO;
+using wpf.UserControls;
 
 namespace wpf.ViewModels
 {
@@ -24,21 +25,16 @@ namespace wpf.ViewModels
         private string _nieuwBestemmingtype;
         private string _foutmeldingBestemming;
         private ObservableCollection<string> _landen;
-
-        private string _selectedBestemmingsType;
         private string _selectedLand1;
         private string _selectedLand2;
-        private string _naam;
-        private string _straat;
-        private string _gemeente;
-        private int _capaciteit;
+        
 
-        public string SelectedBestemmingsType
+        public Bestemmingstype SelectedBestemmingsType
         {
-            get { return _selectedBestemmingsType; }
+            get { return _selectedBestemmingsTypes; }
             set
             {
-                _selectedBestemmingsType = value;
+                _selectedBestemmingsTypes = value;
                 NotifyPropertyChanged();
             }
         }
@@ -51,7 +47,6 @@ namespace wpf.ViewModels
                 _selectedLand1 = value;
                 // IsBestemmingAanmaken = true;
                 NotifyPropertyChanged();
-                
             }
         }
 
@@ -63,59 +58,13 @@ namespace wpf.ViewModels
                 _selectedLand2 = value;
                 NotifyPropertyChanged();
                 VulListBoxPerLandIn(_selectedLand2);
-                IsBestemmingAanmaken = false;
             }
         }
 
-        public string Naam
-        {
-            get { return _naam; }
-            set
-            {
-                _naam = value;
-                NotifyPropertyChanged();
-            }
-        }
-
-        public string Straat
-        {
-            get { return _straat; }
-            set
-            {
-                _straat = value;
-                NotifyPropertyChanged();
-            }
-        }
-
-        public string Gemeente
-        {
-            get { return _gemeente; }
-            set
-            {
-                _gemeente = value;
-                NotifyPropertyChanged();
-            }
-        }
-
-        public int Capaciteit
-        {
-            get { return _capaciteit; }
-            set
-            {
-                _capaciteit = value;
-                if (!IsBestemmingGeselecteerd)
-                {
-                    IsBestemmingAanmaken = true;
-                }
-                NotifyPropertyChanged();
-            }
-        }
 
         public void VulListBoxPerLandIn(string SelectedLand5)
         {
-            //MessageBox.Show(SelectedLand5);
             Bestemmingen = new ObservableCollection<Bestemming>(_unitOfWork.BestemmingRepo.Ophalen(x => x.Land.Contains(SelectedLand5)));
-
         }
 
         public ObservableCollection<Bestemmingstype> BestemmingsTypes
@@ -138,30 +87,6 @@ namespace wpf.ViewModels
             }
         }
 
-        private bool _isBestemmingGeselecteerd;
-
-        public bool IsBestemmingGeselecteerd
-        {
-            get { return _isBestemmingGeselecteerd; }
-            set 
-            { 
-                _isBestemmingGeselecteerd = value;
-                NotifyPropertyChanged();
-            }
-        }
-
-        private bool _isBestemmingAanmaken;
-
-        public bool IsBestemmingAanmaken
-        {
-            get { return _isBestemmingAanmaken; }
-            set 
-            { 
-                _isBestemmingAanmaken = value;
-                NotifyPropertyChanged();
-            }
-        }
-
 
         public ObservableCollection<Bestemming> Bestemmingen
         {
@@ -179,8 +104,7 @@ namespace wpf.ViewModels
             set
             {
                 _selectedBestemming = value;
-                IsBestemmingGeselecteerd = true;
-                IsBestemmingAanmaken = false;
+                BestemmingRecord = SelectedBestemming;
                 VulInfoGeselecteerdeBestemmingIn(SelectedBestemming);
                 NotifyPropertyChanged();
             }
@@ -190,12 +114,9 @@ namespace wpf.ViewModels
         {
             if (bestemming5 != null)
             {
-                SelectedBestemmingsType = bestemming5.Bestemmingstype.Naam;
+                SelectedBestemmingsType = bestemming5.Bestemmingstype;
                 SelectedLand1 = bestemming5.Land;
-                Naam = bestemming5.Naam;
-                Gemeente = bestemming5.Gemeente;
-                Straat = bestemming5.Straat;
-                Capaciteit = (bestemming5.Capaciteit);
+                
             }
 
         }
@@ -209,19 +130,6 @@ namespace wpf.ViewModels
                 NotifyPropertyChanged();
             }
         }
-
-        private bool _bestemmingAanmaken;
-
-        public bool BestemmingAanmaken
-        {
-            get { return _bestemmingAanmaken; }
-            set 
-            { 
-                _bestemmingAanmaken = value;
-                NotifyPropertyChanged();
-            }
-        }
-
 
 
         public string FoutmeldingBestemming
@@ -246,10 +154,10 @@ namespace wpf.ViewModels
         {
             switch (parameter.ToString())
             {
-                case "MaakBestemming": return true;
-                case "UpdateBestemming": return true;
+                case "MaakBestemming": return (BestemmingRecord.Naam != null) && (BestemmingRecord.Capaciteit != 0) && (SelectedBestemming == null);
+                case "UpdateBestemming": return SelectedBestemming != null;
                 case "VeldenLeegmaken": return true;
-                case "BestemmingstypeToevoegen": return true;
+                case "BestemmingstypeToevoegen": return NieuwBestemmingtype != null;
             }
             return true;
         }
@@ -264,8 +172,6 @@ namespace wpf.ViewModels
                 case "BestemmingstypeToevoegen": BestemmingstypeToevoegen(); break;
             }
         }
-
-        
 
         public ObservableCollection<string> Landen
         {
@@ -287,46 +193,80 @@ namespace wpf.ViewModels
         {
             Landen = new ObservableCollection<string> { "Belgie", "Nederland", "Frankrijk", "Oostenrijk" };
             BestemmingsTypes = new ObservableCollection<Bestemmingstype>(_unitOfWork.BestemmingstypeRepo.Ophalen());
-            IsBestemmingAanmaken = false;
-            IsBestemmingGeselecteerd = false;
+            BestemmingRecord = new Bestemming();
         }
 
+        // de 4 knoppen ==========================================================
         public void MaakBestemming() 
         {
-            string bestemmingstype1 = SelectedBestemmingsType;
-            string land1 = SelectedLand1;
-            string naam1 = Naam;
-            string gemeente1 = Gemeente;
-            string straat1 = Straat;
-            int capaciteit1 = Capaciteit;
-            MessageBox.Show(gemeente1 + " " + straat1 + " " + capaciteit1.ToString());
+            Bestemming Bestemming1 = new Bestemming();
+            // Bestemmingstype Bestemmingstype2 = new Bestemmingstype();
 
+            Bestemming1.Bestemmingstype = SelectedBestemmingsType;
+            Bestemming1.Land = SelectedLand1;
+            Bestemming1.Naam = BestemmingRecord.Naam;
+            Bestemming1.Gemeente = BestemmingRecord.Gemeente;
+            Bestemming1.Straat = BestemmingRecord.Straat;
+            Bestemming1.Capaciteit = BestemmingRecord.Capaciteit;
+            Bestemming1.Fotonaam = "test.png";                      // de verwijzing naar de foto zit in de db, voorlopig doen we er niks mee
 
-            BestemmingRecord.Bestemmingstype.Naam = bestemmingstype1;
-            
-            BestemmingRecord.Land = SelectedLand1;
-            BestemmingRecord.Naam = Naam;
-            BestemmingRecord.Gemeente = Gemeente;
-            BestemmingRecord.Straat = Straat;
-            BestemmingRecord.Capaciteit = Capaciteit;
-            BestemmingRecord.Fotonaam = "test.png";
-
+            if (Bestemming1.Error != string.Empty)                  // check of alle velden zijn ingevuld.
+            {
+                FoutmeldingBestemming = Bestemming1.Error;
+            }
+            else
+            {
+                _unitOfWork.BestemmingRepo.Toevoegen(Bestemming1);
+                int oke = _unitOfWork.Save();
+                if (oke > 0) 
+                    { 
+                    MessageBox.Show("bestemming toegevoegd."); 
+                    VeldenLeegmaken(); 
+                    BestemmingRecord = new Bestemming(); 
+                    }
+                else
+                    {
+                    MessageBox.Show("jammer, niet toegevoegd.");
+                    }
+            }
         }
         public void UpdateBestemming() 
         {
-            MessageBox.Show("update");
+            if (SelectedBestemming != null)                 // om te vermijden bij VeldenLeegmaken, dat null error komt.
+            {
+                Bestemming Bestemming = new Bestemming();
+                
+                Bestemming.Bestemmingstype = SelectedBestemmingsType;
+                Bestemming.BestemmingstypeId = BestemmingRecord.BestemmingstypeId;                         
+                Bestemming.Id = BestemmingRecord.Id;
+                Bestemming.Land = SelectedLand1;
+                Bestemming.Naam = BestemmingRecord.Naam;
+                Bestemming.Gemeente = BestemmingRecord.Gemeente;
+                Bestemming.Straat = BestemmingRecord.Straat;
+                Bestemming.Capaciteit = BestemmingRecord.Capaciteit;
+                Bestemming.Fotonaam = BestemmingRecord.Fotonaam;
+
+                _unitOfWork.BestemmingRepo.ToevoegenOfAanpassen(BestemmingRecord);
+                int oke = _unitOfWork.Save();
+
+                if (oke > 0) 
+                { MessageBox.Show("Bestemming is aangepast!"); VeldenLeegmaken(); BestemmingRecord = new Bestemming(); } else 
+                { MessageBox.Show("Bestemming NIET aangepast!"); };
+
+                
+            }
+            else
+            {
+                FoutmeldingBestemming = "Eerst een bestemming selecteren!";
+            }
         }
         public void VeldenLeegmaken() 
         {
             SelectedBestemmingsType = null;
             SelectedLand1 = null;
-            Naam = string.Empty;
-            Gemeente = string.Empty;
-            Straat = string.Empty;
-            Capaciteit = 0;
+            BestemmingRecord = null;
             SelectedLand2 = null;
-            IsBestemmingAanmaken = false;
-            IsBestemmingGeselecteerd = false;
+            NieuwBestemmingtype = null;
             
         }
         public void BestemmingstypeToevoegen() 
@@ -334,25 +274,33 @@ namespace wpf.ViewModels
             Bestemmingstype Bestemmingstype1 = new Bestemmingstype();
             Bestemmingstype1.Naam = NieuwBestemmingtype;
 
-            // testing of nieuw bestemmingstype minstens 3 karakters heeft
-            if (Bestemmingstype1.Naam.Length < 3)
+            if (Bestemmingstype1.Naam != null) 
             {
-                FoutmeldingBestemming = "Bestemmingstype minstens 3 karakters";
-            }
-            else
-            {
-                FoutmeldingBestemming = "";
-                _unitOfWork.BestemmingstypeRepo.Toevoegen(Bestemmingstype1);
-                int oke = _unitOfWork.Save();
-                if (oke > 0)
+                // testing of nieuw bestemmingstype minstens 3 karakters heeft
+                if (Bestemmingstype1.Naam.Length < 3  )
                 {
-                    MessageBox.Show("Het bestemmingstype is toegevoegd.");
-                    NieuwBestemmingtype = "";
+                    FoutmeldingBestemming = "Bestemmingstype minstens 3 karakters";
                 }
                 else
                 {
-                    MessageBox.Show("Het bestemmingstype is niet toegevoegd.");
+                    FoutmeldingBestemming = "";
+                    _unitOfWork.BestemmingstypeRepo.Toevoegen(Bestemmingstype1);
+                    int oke = _unitOfWork.Save();
+                    if (oke > 0)
+                    {
+                        MessageBox.Show("Het bestemmingstype is toegevoegd.");
+                        NieuwBestemmingtype = "";
+                        FoutmeldingBestemming = "";
+                    }
+                    else
+                    {
+                        MessageBox.Show("Het bestemmingstype is niet toegevoegd.");
+                    }
                 }
+            }
+            else
+            {
+                FoutmeldingBestemming = "Gelieve iets in te vullen.";
             }
 
         }

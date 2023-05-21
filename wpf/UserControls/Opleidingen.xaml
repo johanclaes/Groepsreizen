@@ -20,9 +20,9 @@
 
         <GroupBox Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Header="OpleidingsMoment" Background="LightBlue" Margin="10">
             <StackPanel>
-                <ComboBox Name="cmbSoortOpleiding" ItemsSource="{Binding SoortOpleidingen}" SelectedItem="{Binding SelectedSoortOpleiding}" Height="20" Margin="10" />
+                <ComboBox Name="cmbSoortOpleiding" ItemsSource="{Binding SoortOpleidingen}" SelectedItem="{Binding SelectedSoortOpleiding}" Height="25" Margin="10" />
                 <TextBlock Margin="10">Startdatum</TextBlock>
-                <DatePicker Name="dpStartdatum" SelectedDate="{Binding Einddatum}" SelectedDateFormat="Long"/>
+                <DatePicker Name="dpStartdatum" SelectedDate="{Binding Startdatum}" SelectedDateFormat="Long"/>
                 <TextBlock Margin="10">Einddatum</TextBlock>
                 <DatePicker Name="dpEinddatum" SelectedDate="{Binding Einddatum}" SelectedDateFormat="Long"/>
                 <Button Name="btnOpleidingAanmaken" Command="{Binding}" CommandParameter="OpleidingAanmaken" Content="Opleiding Aanmaken"/>
@@ -59,7 +59,7 @@
 
         <StackPanel Grid.Row="0" Grid.Column="3">
             <TextBlock >Lijst van Deelnemers</TextBlock>
-            <ListBox Name="lstDeelnemers" ItemsSource="{Binding Deelnemers}" Background="beige" Height="200"/>
+            <ListBox Name="lstDeelnemers" ItemsSource="{Binding Deelnemers}" SelectedItem="{Binding SelectedDeelnemerDelete}" Background="beige" Height="200"/>
             <Button Name="btnVerwijderDeelnemer" Command="{Binding}" CommandParameter="VerwijderDeelnemer" Content="Verwijder deelnemer" Margin="5"/>
         </StackPanel>
 
